@@ -38,3 +38,24 @@ char demangleFromScratch(std::vector<char> var){
         }
     }
 }
+
+
+
+//double is d
+//int is i
+//char is c
+
+int main() {
+    std::string hw = "hello";
+    std::string mThing=typeid(hw).name();
+    std::vector<char> mToV;
+    int mSize = mThing.size();
+
+    for (int i=0; i<mSize; i++){
+        mToV.push_back(mThing[i]);
+        std::cout << mToV[i] << " " << std::endl;
+    }
+
+    std::cout << demangleFromScratch(mToV);
+    return 0;
+}
