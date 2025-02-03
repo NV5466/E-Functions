@@ -1,4 +1,4 @@
-char demangleFromScratch(std::vector<char> var){
+char demangleFromScratch(std::vector<std::string var){
     std::vector<char> vToCheck;
     std::vector<char> stringCheck;
     for(int i=0; i<var.size(); i++){
@@ -47,15 +47,8 @@ char demangleFromScratch(std::vector<char> var){
 
 int main() {
     std::string hw = "hello";
+    //The string to be 
     std::string mThing=typeid(hw).name();
-    std::vector<char> mToV;
-    int mSize = mThing.size();
-
-    for (int i=0; i<mSize; i++){
-        mToV.push_back(mThing[i]);
-        std::cout << mToV[i] << " " << std::endl;
-    }
-
-    std::cout << demangleFromScratch(mToV);
+    std::cout << demangleFromScratch(mThing);
     return 0;
 }
