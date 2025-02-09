@@ -1,0 +1,81 @@
+#include <WiFiS3.h>
+#include <string>
+
+WiFiClient client;
+WiFiServer server(80);
+int count = 0;
+bool lastButtonState = HIGH;
+
+void setup() {
+    pinMode(7, OUTPUT);
+    pinMode(6, INPUT_PULLUP);
+
+    String SSID;
+    String SSIDPassphrase;
+
+    Serial.begin(9600);
+    Serial.println("Connecting to WiFi...");
+
+    WiFi.disconnect();
+    delay(6000);
+    Serial.println(WiFi.status());
+    WiFi.begin(SSID.c_str(), SSIDPassphrase.c_str());
+
+    int startTime = millis();
+    while ((millis() - startTime < 12000) && (WiFi.status() != WL_CONNECTED)) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("Aborting Connection");
+        abort();
+    }
+
+    Serial.println("\nWiFi connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+
+    server.begin();
+}
+
+void loop() {
+    bool currentButtonState = digitalRead(6);
+
+    // Detect button press
+    if (lastButtonState == HIGH && currentButtonState == LOW) {
+        count++;
+        Serial.println("Button Pressed! Count: " + String(count));
+        delay(50);  // Simple debounce
+    }
+    lastButtonState = currentButtonState;  // Update button state
+
+    WiFiClient client = server.available();
+    if (client) {
+        Serial.println("New client connected");
+
+        String request = "";
+        while (client.connected()) {
+            if (client.available()) {
+                char c = client.read();
+                request += c;
+                if (c == '\n') break;
+            }
+        }
+
+        Serial.println(request);
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-Type: text/html");
+        client.println("Connection: close");
+        client.println();
+        client.println("<html><head>");
+        client.println("<meta http-equiv='refresh' content='1'>"); // 🔥 Auto-refresh every second
+        client.println("<title>Status</title></head>");
+        client.println("<body><h1>Houston, we got no problems</h1>");
+        client.println("<p>Count: " + String(count) + "</p>");
+        client.println("</body></html>");
+
+        client.stop();
+        Serial.println("Client disconnected");
+    }
+}
